@@ -1,0 +1,14 @@
+server:
+  port: 8082
+
+jwt:
+  # base64 encoded key
+  secret: 9i3Bk8SJ3CfqIm+v9JJjHc5PGmqNmevaXDLYX4k0sW9hmhuvA6rTNWIM6uISlbVWcn28bMs+gY+P3LLzRytHMQ==
+  # 30min
+  secs_to_expire_access: 1800
+  # 2. todo: refresh token expiration time
+
+oauth2:
+  redirect-uris: http://localhost:3000
+
+# 3. todo: Add OAuth2 configuration with preferred provider, make sure OAuth2 is working
