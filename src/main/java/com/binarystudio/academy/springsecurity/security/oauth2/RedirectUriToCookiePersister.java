@@ -10,37 +10,36 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class RedirectUriToCookiePersister implements AuthorizationRequestRepository<OAuth2AuthorizationRequest> {
-	public static final String REDIRECT_URI_PARAM = "redirect_uri";
-	private final HttpSessionOAuth2AuthorizationRequestRepository httpSessionRepository = new HttpSessionOAuth2AuthorizationRequestRepository();
 
-	@Override
-	public OAuth2AuthorizationRequest loadAuthorizationRequest(HttpServletRequest request) {
-		return httpSessionRepository.loadAuthorizationRequest(request);
-	}
+    public static final String REDIRECT_URI_PARAM = "redirect_uri";
+    private final HttpSessionOAuth2AuthorizationRequestRepository httpSessionRepository = new HttpSessionOAuth2AuthorizationRequestRepository();
 
-	@Override
-	public void saveAuthorizationRequest(OAuth2AuthorizationRequest authorizationRequest, HttpServletRequest request, HttpServletResponse response) {
-		// Here we store the cookie with the redirect uri which we got from client,
-		// so that further we can pass him the JWT back
-		var redirectUri = request.getParameter(REDIRECT_URI_PARAM);
-		if (StringUtils.hasText(redirectUri)) {
-			Cookie redirCookie = new Cookie(REDIRECT_URI_PARAM, redirectUri);
-			redirCookie.setPath("/");
-			redirCookie.setHttpOnly(true);
-			// we can extract cookie's max age to application.yml
-			redirCookie.setMaxAge(180);
-			response.addCookie(redirCookie);
-		}
-		httpSessionRepository.saveAuthorizationRequest(authorizationRequest, request, response);
-	}
+    @Override
+    public OAuth2AuthorizationRequest loadAuthorizationRequest(HttpServletRequest request) {
+        return httpSessionRepository.loadAuthorizationRequest(request);
+    }
 
-	@Override
-	public OAuth2AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request) {
-		return httpSessionRepository.removeAuthorizationRequest(request);
-	}
+    @Override
+    public void saveAuthorizationRequest(OAuth2AuthorizationRequest authorizationRequest, HttpServletRequest request, HttpServletResponse response) {
+        var redirectUri = request.getParameter(REDIRECT_URI_PARAM);
+        if (StringUtils.hasText(redirectUri)) {
+            var redirectCookie = new Cookie(REDIRECT_URI_PARAM, redirectUri);
+            redirectCookie.setPath("/");
+            redirectCookie.setHttpOnly(true);
+            redirectCookie.setMaxAge(180);
+            response.addCookie(redirectCookie);
+        }
+        httpSessionRepository.saveAuthorizationRequest(authorizationRequest, request, response);
+    }
 
-	@Override
-	public OAuth2AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request, HttpServletResponse response) {
-		return httpSessionRepository.removeAuthorizationRequest(request, response);
-	}
+    @Override
+    public OAuth2AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request) {
+        return httpSessionRepository.removeAuthorizationRequest(request);
+    }
+
+    @Override
+    public OAuth2AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request, HttpServletResponse response) {
+        return httpSessionRepository.removeAuthorizationRequest(request, response);
+    }
+
 }

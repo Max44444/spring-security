@@ -12,5 +12,7 @@ import java.util.List;
 @Getter
 @Setter
 public class OAuth2Properties {
-	private List<String> redirectUris;
+
+    private List<String> redirectUris;
+
 }

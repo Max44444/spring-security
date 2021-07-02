@@ -4,6 +4,8 @@ import lombok.Data;
 
 @Data
 public class ForgottenPasswordReplacementRequest {
-	private String token;
-	private String newPassword;
+
+    private String token;
+    private String newPassword;
+
 }

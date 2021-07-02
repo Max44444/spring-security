@@ -9,22 +9,24 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class SimpleOAuth2UserService extends DefaultOAuth2UserService {
-	private final UserRepository userRepository;
 
-	public SimpleOAuth2UserService(UserRepository userRepository) {
-		this.userRepository = userRepository;
-	}
+    private final UserRepository userRepository;
 
-	@Override
-	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-		var oAuth2User = super.loadUser(userRequest);
-		String email = oAuth2User.getAttribute("email");
-		var foundUser = userRepository.findByEmail(email);
-		if (foundUser.isPresent()) {
-			// update user, verify his email, etc since the email is returned from trusted source
-		} else {
-			// 1. todo: register the user when he wasn't found
-		}
-		return oAuth2User;
-	}
+    public SimpleOAuth2UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    @Override
+    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+        var oAuth2User = super.loadUser(userRequest);
+        String email = oAuth2User.getAttribute("email");
+        var foundUser = userRepository.findByEmail(email);
+        if (foundUser.isPresent()) {
+            // update user, verify his email, etc since the email is returned from trusted source
+        } else {
+            userRepository.createUserByEmail(email);
+        }
+        return oAuth2User;
+    }
+
 }

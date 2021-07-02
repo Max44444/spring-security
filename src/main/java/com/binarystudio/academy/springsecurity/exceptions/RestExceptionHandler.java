@@ -41,4 +41,5 @@ public class RestExceptionHandler extends AbstractExceptionHandler {
 		log.error("Unhandled error", exception);
 		return setResponseStatusAndReturnError(exception, "internal-error", HttpStatus.INTERNAL_SERVER_ERROR, request, response);
 	}
+
 }

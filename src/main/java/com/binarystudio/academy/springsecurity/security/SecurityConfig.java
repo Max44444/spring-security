@@ -20,34 +20,26 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-	// 7. todo: make Actuator route restricted
+
 	private void applyRouteRestrictions(HttpSecurity http) throws Exception {
 		http
-				// Set permissions on endpoints
 				.authorizeRequests()
-				// Our public endpoints
 				.antMatchers("/auth/**").permitAll()
 				.antMatchers(HttpMethod.GET, "/hotels/*").permitAll()
-				// Our private endpoints
 				.antMatchers("/hotels/**").hasAnyRole(UserRole.ADMIN.toString(), UserRole.USER.toString())
 				.antMatchers("/users/all").hasRole(UserRole.ADMIN.toString())
+				.antMatchers("/actuator/**").hasRole(UserRole.ADMIN.toString())
 				.anyRequest().authenticated();
 	}
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-				// Enable CORS
 				.cors().and()
-				// Disable CSRF
 				.csrf().disable()
-				// Disable basic HTTP auth
 				.httpBasic().disable()
-				// Disable form login
 				.formLogin().disable()
 				.exceptionHandling(rejectAsUnauthorized())
-
-				// Set session management to stateless
 				.sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
@@ -59,7 +51,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 
 	private Customizer<ExceptionHandlingConfigurer<HttpSecurity>> rejectAsUnauthorized() {
-		return exceptionHandling -> exceptionHandling.authenticationEntryPoint((request, response, authException) -> response.sendError(403));
+		return exceptionHandling -> exceptionHandling.authenticationEntryPoint(
+				(request, response, authException) -> response.sendError(403)
+		);
 	}
 
 	private void applyOAuth2Config(HttpSecurity http) throws Exception {
@@ -69,9 +63,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 							auth.baseUri("/auth/oauth2/authorize");
 							auth.authorizationRequestRepository(authorizationRequestRepository());
 						})
-						// You also need to ensure the client.registration.redirectUri (at application.yml) matches the custom
-						// Authorization Response baseUri.
-						.redirectionEndpoint(redir -> redir.baseUri("/auth/oauth2/code/*"))
+						.redirectionEndpoint(redirect -> redirect.baseUri("/auth/oauth2/code/*"))
 						.successHandler(oAuth2SuccessHandler()));
 	}
 

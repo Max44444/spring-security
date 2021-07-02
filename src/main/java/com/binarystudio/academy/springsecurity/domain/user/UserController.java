@@ -11,19 +11,21 @@ import java.util.List;
 @RestController
 @RequestMapping("users")
 public class UserController {
-	private final UserService userService;
 
-	public UserController(UserService users) {
-		this.userService = users;
-	}
+    private final UserService userService;
 
-	@GetMapping("all")
-	public List<User> listAllUsers() {
-		return userService.getAll();
-	}
+    public UserController(UserService users) {
+        this.userService = users;
+    }
 
-	@GetMapping("me")
-	public User whoAmI(@AuthenticationPrincipal User user) {
-		return user;
-	}
+    @GetMapping("all")
+    public List<User> listAllUsers() {
+        return userService.getAll();
+    }
+
+    @GetMapping("me")
+    public User whoAmI(@AuthenticationPrincipal User user) {
+        return user;
+    }
+
 }

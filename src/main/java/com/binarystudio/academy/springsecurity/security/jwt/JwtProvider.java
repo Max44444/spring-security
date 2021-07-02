@@ -15,6 +15,7 @@ import java.util.Date;
 
 @Component
 public class JwtProvider {
+
 	private final JwtProperties jwtProperties;
 	private Key secretKey;
 	private JwtParser jwtParser;
@@ -39,10 +40,22 @@ public class JwtProvider {
 		return jwtParser;
 	}
 
-	// 2. todo: refresh token should be generated here
+	public String generateRefreshToken(User user) {
+		var date = getExpirationDateForToken(jwtProperties.getSecs_to_expire_refresh());
+		return generateUserTokenWithExpirationDate(user, date);
+	}
 
-	public String generateToken(User user) {
-		Date date = Date.from(LocalDateTime.now().plusSeconds(jwtProperties.getSecs_to_expire_access()).toInstant(ZoneOffset.UTC));
+	public String generateAccessToken(User user) {
+		var date = getExpirationDateForToken(jwtProperties.getSecs_to_expire_access());
+		return generateUserTokenWithExpirationDate(user, date);
+	}
+
+	public String getLoginFromToken(String token) {
+		var claims = parseToken(token);
+		return claims.getSubject();
+	}
+
+	private String generateUserTokenWithExpirationDate(User user, Date date) {
 		return Jwts.builder()
 				.setSubject(user.getUsername())
 				.setExpiration(date)
@@ -50,9 +63,10 @@ public class JwtProvider {
 				.compact();
 	}
 
-	public String getLoginFromToken(String token) {
-		Claims claims = parseToken(token);
-		return claims.getSubject();
+	private Date getExpirationDateForToken(Long secsToExpire) {
+		return Date
+				.from(LocalDateTime.now().plusSeconds(secsToExpire)
+						.toInstant(ZoneOffset.UTC));
 	}
 
 	private Claims parseToken(String token) {
@@ -70,4 +84,5 @@ public class JwtProvider {
 			throw new JwtException("Invalid token", "jwt-invalid");
 		}
 	}
+
 }
